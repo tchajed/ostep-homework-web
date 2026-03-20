@@ -127,20 +127,76 @@ export class Random {
     return (a * 67108864.0 + b) / 9007199254740992.0;
   }
 
-  /** Returns an integer in [lo, hi] inclusive */
+  /**
+   * Returns a random integer in [0, n) matching CPython's random._randbelow().
+   * Uses getrandbits with rejection sampling, exactly as CPython does.
+   * Python's getrandbits(k) takes the UPPER k bits of a 32-bit MT word.
+   *
+   * NOTE: Most OSTEP simulators define their own random_randint/random_choice
+   * helpers that use random.random() instead of _randbelow. Only a few
+   * simulators (e.g., multi.py) use Python's native random.choice/random.shuffle
+   * which internally call _randbelow. Use randint/choice/shuffle for the
+   * former, and nativeChoice/nativeShuffle for the latter.
+   */
+  randbelow(n: number): number {
+    if (n <= 0) return 0;
+    // Python: k = n.bit_length()
+    let k = 0;
+    let tmp = n;
+    while (tmp > 0) {
+      k++;
+      tmp >>>= 1;
+    }
+    // Rejection sampling: generate k-bit random via upper bits, reject if >= n
+    const shift = 32 - k;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const r = this.genrandInt32() >>> shift;
+      if (r < n) return r;
+    }
+  }
+
+  /**
+   * Returns an integer in [lo, hi] inclusive.
+   * Matches the OSTEP custom random_randint(lo, hi) = int(lo + random() * (hi - lo + 1)).
+   */
   randint(lo: number, hi: number): number {
     return lo + Math.floor(this.random() * (hi - lo + 1));
   }
 
-  /** Pick a random element from an array */
+  /**
+   * Pick a random element from an array.
+   * Matches the OSTEP custom random_choice(L) = L[random_randint(0, len(L)-1)].
+   */
   choice<T>(arr: T[]): T {
     return arr[Math.floor(this.random() * arr.length)];
   }
 
-  /** Shuffle array in place (Fisher-Yates) */
+  /**
+   * Pick a random element from an array using CPython's native random.choice.
+   * Uses _randbelow internally (getrandbits-based), which consumes different
+   * MT values than random.random()-based selection.
+   */
+  nativeChoice<T>(arr: T[]): T {
+    return arr[this.randbelow(arr.length)];
+  }
+
+  /** Shuffle array in place (Fisher-Yates), using random.random()-based selection. */
   shuffle<T>(arr: T[]): T[] {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(this.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  /**
+   * Shuffle array in place matching CPython's native random.shuffle.
+   * Uses _randbelow internally.
+   */
+  nativeShuffle<T>(arr: T[]): T[] {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = this.randbelow(i + 1);
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;

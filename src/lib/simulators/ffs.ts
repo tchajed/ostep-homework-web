@@ -84,7 +84,7 @@ export interface FfsState {
   dirSpanAvg: number | null;
 }
 
-const ALL_SYMBOLS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%^&*()[]{}/<>|'.split('');
+const ALL_SYMBOLS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMOPQRSTUVWXYZ0123456789!@#%^&*()[]{}/.<>|'.split('');
 
 class FfsFileSystem {
   private params: FfsParams;

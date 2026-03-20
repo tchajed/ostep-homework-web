@@ -345,7 +345,7 @@ export function simulate(opts: SimulationOptions): SimulationResult {
     let cpuList: number[];
     if (opts.randomOrder) {
       cpuList = Array.from({ length: opts.numCpus }, (_, i) => i);
-      rng.shuffle(cpuList);
+      rng.nativeShuffle(cpuList);
     } else {
       cpuList = Array.from({ length: opts.numCpus }, (_, i) => i);
     }
@@ -365,7 +365,7 @@ export function simulate(opts: SimulationOptions): SimulationResult {
           for (let c = 0; c < opts.numCpus; c++) {
             if (c !== cpu) otherCpuList.push(c);
           }
-          const otherCpu = rng.choice(otherCpuList);
+          const otherCpu = rng.nativeChoice(otherCpuList);
 
           for (const jname of perCpuSchedQueue[otherCpu]) {
             const job = jobs.get(jname)!;

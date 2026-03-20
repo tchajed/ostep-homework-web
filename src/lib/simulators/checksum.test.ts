@@ -139,4 +139,47 @@ describe('checksum', () => {
       });
     });
   });
+
+  // Cross-validation against Python checksum.py output
+  // Each case verified by running: python3 checksum.py -s <seed> -d <dataSize> -c
+  describe('matches Python checksum.py output', () => {
+    const pythonCases = [
+      {
+        label: 'seed=0, dataSize=4',
+        params: { seed: 0, dataSize: 4, data: '' },
+        expected: { values: [216, 194, 107, 66], add: 71, xor: 51, fletcherA: 73, fletcherB: 196 },
+      },
+      {
+        label: 'seed=1, dataSize=4',
+        params: { seed: 1, dataSize: 4, data: '' },
+        expected: { values: [34, 216, 195, 65], add: 254, xor: 120, fletcherA: 0, fletcherB: 219 },
+      },
+      {
+        label: 'seed=5, dataSize=8',
+        params: { seed: 5, dataSize: 8, data: '' },
+        expected: { values: [159, 189, 203, 241, 189, 236, 7, 119], add: 63, xor: 57, fletcherA: 68, fletcherB: 240 },
+      },
+      {
+        label: 'explicit data=1,2,3,4',
+        params: { seed: 0, dataSize: 4, data: '1,2,3,4' },
+        expected: { values: [1, 2, 3, 4], add: 10, xor: 4, fletcherA: 10, fletcherB: 20 },
+      },
+      {
+        label: 'seed=42, dataSize=6',
+        params: { seed: 42, dataSize: 6, data: '' },
+        expected: { values: [163, 6, 70, 57, 188, 173], add: 145, xor: 203, fletcherA: 147, fletcherB: 223 },
+      },
+    ];
+
+    for (const { label, params, expected } of pythonCases) {
+      it(label, () => {
+        const result = simulate(params);
+        expect(result.values).toEqual(expected.values);
+        expect(result.add).toBe(expected.add);
+        expect(result.xor).toBe(expected.xor);
+        expect(result.fletcherA).toBe(expected.fletcherA);
+        expect(result.fletcherB).toBe(expected.fletcherB);
+      });
+    }
+  });
 });
