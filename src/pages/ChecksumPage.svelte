@@ -13,23 +13,22 @@
   let dataInput = $state(defaultParams.data);
   let showSolution = $state(false);
   let revealedSteps = $state(0);
-  let error = $state('');
-
   let params: ChecksumParams = $derived({
     seed,
     dataSize,
     data: dataInput,
   });
 
-  let result: ChecksumResult | null = $derived.by(() => {
+  let resultOrError: { result: ChecksumResult; error: '' } | { result: null; error: string } = $derived.by(() => {
     try {
-      error = '';
-      return simulate(params);
+      return { result: simulate(params), error: '' as const };
     } catch (e: any) {
-      error = e.message;
-      return null;
+      return { result: null, error: e.message };
     }
   });
+
+  let result: ChecksumResult | null = $derived(resultOrError.result);
+  let error: string = $derived(resultOrError.error);
 
   function revealAll() {
     showSolution = true;

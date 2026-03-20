@@ -20,23 +20,21 @@
   let showSolution = $state(false);
   let currentStep = $state(0);
   let stepping = $state(false);
-  let errorMsg = $state('');
-
   let params = $derived<X86Params>({
     seed, program, numThreads, intFreq, intRand, argv,
     loadAddr: 1000, memSize: 128, memTrace, regTrace, ccTrace,
   });
 
-  let result: SimulationResult | null = $derived.by(() => {
+  let resultOrError: { result: SimulationResult; error: '' } | { result: null; error: string } = $derived.by(() => {
     try {
-      const r = simulate(params);
-      errorMsg = '';
-      return r;
+      return { result: simulate(params), error: '' as const };
     } catch (e: any) {
-      errorMsg = e.message || String(e);
-      return null;
+      return { result: null, error: e.message || String(e) };
     }
   });
+
+  let result: SimulationResult | null = $derived(resultOrError.result);
+  let errorMsg: string = $derived(resultOrError.error);
 
   function resetStepping() {
     currentStep = 0;
