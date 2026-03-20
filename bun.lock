@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "ostep-hw-scaffold",
+      "name": "ostep-homework-web",
       "dependencies": {
         "svelte-routing": "^2.13.0",
       },
