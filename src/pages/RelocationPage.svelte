@@ -9,7 +9,7 @@
   let limitInput = $state(-1);
   let showAnswers = $state(false);
 
-  let result: RelocationResult | null = $state(null);
+  let result = $state<RelocationResult | null>(null);
   let error: string | null = $state(null);
 
   function run() {
@@ -34,8 +34,8 @@
 
   // Derived layout values for the memory diagram
   let diagramHeight = $derived(200);
-  let baseRatio = $derived(result ? result.base / result.psize : 0);
-  let limitRatio = $derived(result ? result.limit / result.psize : 0);
+  let baseRatio = $derived(result !== null ? result.base / result.psize : 0);
+  let limitRatio = $derived(result !== null ? result.limit / result.psize : 0);
 </script>
 
 <div class="max-w-4xl mx-auto space-y-6">
